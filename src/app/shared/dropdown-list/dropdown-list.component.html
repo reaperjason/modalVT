@@ -1,0 +1,15 @@
+<div class="row">
+  <section class="card_items">
+    <div class="items_search">
+      <input class="input_items" type="text" placeholder="Buscar..." (keyup)="itemsFiltering($event)" />
+      <button type="button" class="icon_btn" disabled><img class="icon"
+          src="https://icones.pro/wp-content/uploads/2021/02/loupe-et-icone-de-recherche-de-couleur-bleue.png"
+          alt="search_icon"></button>
+    </div>
+    <div class="item_list">
+      <div class="item_render" *ngFor="let item of itemsRender" (click)="itemClicked(item)">
+        <span class="item_name"> <b>{{item.code}}</b> {{item.desc}}</span>
+      </div>
+    </div>
+  </section>
+</div>

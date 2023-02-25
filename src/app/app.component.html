@@ -1,0 +1,308 @@
+<button type="button" class="btn btn-outline-primary" (click)="openModal('NEE')">
+  Open Modal
+</button>
+<app-modal [modalID]="'NEE'" [modalClass]="'md-effect-1'">
+  <div class="modal_header">
+    <span>Estudiantes con necesidades educativas específicas (NEE)</span>
+    <button (click)="closeModal('NEE')" aria-label="Close" class="md-close-btn btn-close btn-close-white"></button>
+  </div>
+  <div class="modal-content">
+    <div class="nav">
+      <ul ngbNav #nav="ngbNav" class="nav-tabs">
+        <li [ngbNavItem]="1">
+          <a ngbNavLink>Estudiantes con NEE</a>
+          <ng-template ngbNavContent>
+            <div class="students_content">
+              <div class="students_input">
+                <label>
+                  <span class="nav_subtitle">Estudiantes con necesidades educativas específicas</span>
+                  <div class="select_custom">
+                    <select id="studentSelector" #mySelector class="select_input" [class.active]="selectedStudent"
+                      (input)="studentSelected($event)">
+                      <option selected disabled hidden>Selecciona a un estudiante en la lista...</option>
+                      <option *ngFor="let student of students; let i = index" value={{student.idestudiante}}
+                        style="color:#17212E">
+                        {{student.nombreestudiante}}
+                      </option>
+                    </select>
+                    <figure class="selector_icon" (click)="mySelector.click()">
+                      <img src="assets/icons/selector-sm.png" alt="">
+                    </figure>
+                  </div>
+                </label>
+              </div>
+              <div class="students_container" *ngIf="selectedStudent">
+                <div class="NEE">
+                  <span class="nav_subtitle">Especificación de la NEE:
+                    <span class="light_font" *ngFor="let dis of selectedStudent?.discapacidades">
+                      {{dis.nombrediscapacidad}}
+                    </span>
+                  </span>
+                </div>
+                <div class="NEE">
+                  <span class="nav_subtitle">Grado de adaptación:
+                    <span class="light_font">{{getGrade(selectedStudent)}}</span>
+                  </span>
+                </div>
+                <span></span>
+              </div>
+            </div>
+          </ng-template>
+        </li>
+        <li [ngbNavItem]="2">
+          <a ngbNavLink>Destrezas</a>
+          <ng-template ngbNavContent>
+            <div class="destrezas_content">
+              <div class="add_destreza">
+                <div ngbDropdown #myDrop="ngbDropdown" class="dropdown_selector">
+                  <div class="dropdown_group">
+                    <button type="button" id="dropdownSkills" ngbDropdownToggle>
+                      Seleccion a una destreza para agregarla a la lista...
+                    </button>
+                    <figure class="selector_icon" (click)="myDrop.toggle()">
+                      <img src="assets/icons/selector-sm.png" alt="">
+                    </figure>
+                  </div>
+                  <div ngbDropdownMenu class="dropdown_skills" aria-labelledby="dropdownSkills">
+                    <app-dropdown-list [itemsRender]="skills"
+                      (itemSelected)="skillSelected($event)"></app-dropdown-list>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-primary" (click)="addSkill()">+Añadir destreza</button>
+              </div>
+              <div class="destrezas_list" *ngIf="skillsAdded.length>0">
+                <div class="destrezas_container">
+                  <span class="light_font complete">{{skillsAdded.length}} destreza en total</span>
+                  <div class=" destrezas_item" *ngFor="let skill of skillsAdded; let i = index">
+                    <div class="destreza_title">
+                      <input type="text" class="long_input" [disabled]="!skill.editable"
+                        [(ngModel)]="skill.description">
+                      <div class="options_icons" *ngIf="!skill.editable">
+                        <img src="assets/icons/edit.png" alt="edit" (click)="editSkill(i)">
+                        <img src="assets/icons/delete.png" alt="delete" (click)="deleteSkill(i)">
+                      </div>
+                      <div class="options_btn" *ngIf="skill.editable">
+                        <button type="button" class="btn btn-primary" (click)="updateSkill(i)">Modificar</button>
+                        <button type="button" class="blue_close btn-close" (click)="cancelUpdateSkill(i)"></button>
+                      </div>
+                    </div>
+                    <div>
+                      <span class="nav_subtitle" style="padding-left: 3%;">Selecciones la/s competencias</span>
+                      <div class=" checkboxs">
+                        <div class="icon_CB">
+                          <img src="assets/icons/first.png" alt=""><input type="checkbox" [(ngModel)]="skill.CB1">
+                        </div>
+                        <div class="icon_CB">
+                          <img src="assets/icons/second.png" alt=""><input type="checkbox" [(ngModel)]="skill.CB2">
+                        </div>
+                        <div class="icon_CB">
+                          <img src="assets/icons/third.png" alt=""><input type="checkbox" [(ngModel)]="skill.CB3">
+                        </div>
+                        <div class="icon_CB">
+                          <img src="assets/icons/fourth.png" alt=""><input type="checkbox" [(ngModel)]="skill.CB4">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="new_destreza" *ngIf="newSkill.active">
+                <div class="destrezas_item">
+                  <div class="destreza_title">
+                    <input type="text" class="long_input enabled" [(ngModel)]="newSkill.description"
+                      placeholder="Nombre de la destreza">
+                    <button type="button" class="btn btn-primary" (click)="createSkill()">Crear</button>
+                    <button type="button" class="blue_close btn-close" (click)="cancelNewSkill()"></button>
+                  </div>
+                  <div>
+                    <span class="nav_subtitle" style="padding-left: 3%;">Selecciones la/s competencias</span>
+                    <div class="checkboxs">
+                      <div class="icon_CB">
+                        <img src="assets/icons/first.png" alt=""><input type="checkbox" [(ngModel)]="newSkill.CB1">
+                      </div>
+                      <div class="icon_CB">
+                        <img src="assets/icons/second.png" alt=""><input type="checkbox" [(ngModel)]="newSkill.CB2">
+                      </div>
+                      <div class="icon_CB">
+                        <img src="assets/icons/third.png" alt=""><input type="checkbox" [(ngModel)]="newSkill.CB3">
+                      </div>
+                      <div class="icon_CB">
+                        <img src="assets/icons/fourth.png" alt=""><input type="checkbox" [(ngModel)]="newSkill.CB4">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+        </li>
+        <li [ngbNavItem]="3">
+          <a ngbNavLink>Indicadores</a>
+          <ng-template ngbNavContent>
+          </ng-template>
+        </li>
+        <li [ngbNavItem]="4">
+          <a ngbNavLink>Estrategias</a>
+          <ng-template ngbNavContent>
+            <div class="strategy_content">
+              <span class="nav_subtitle">Estrategias Metodológicas activas para la enseñanza y aprendizaje</span>
+              <div class="strategy_list" *ngIf="strategyAdded.length>0">
+                <div class="strategy_item" *ngFor="let strategy of strategyAdded; let i = index">
+                  <div class="strategy_header">
+                    <input type="text" class="long_input" [disabled]="!strategy.editable"
+                      [(ngModel)]="strategy.description" placeholder="Nombre de la estrategia">
+                    <div class="options_icons" *ngIf="!strategy.editable">
+                      <img src="assets/icons/edit.png" alt="edit" (click)="editStrategy(i)">
+                      <img src="assets/icons/delete.png" alt="delete" (click)="deleteStrategy(i)">
+                    </div>
+                    <div class="options_btn" *ngIf="strategy.editable">
+                      <button type="button" class="btn btn-primary" (click)="updateStrategy(i)">Modificar</button>
+                      <button type="button" class="blue_close btn-close" (click)="cancelUpdateStrategy(i)"></button>
+                    </div>
+                  </div>
+                  <div class="activity_list_finish" *ngIf="strategy.activity.length>0">
+                    <div class="activity_item_finish" *ngFor="let activity of strategy.activity; let j = index">
+                      <div class="activity_header">
+                        <input type="text" class="long_input" [disabled]="!activity.editable"
+                          [(ngModel)]="activity.name">
+                        <div class="options_icons" style="padding-right: 2%;" *ngIf="!activity.editable">
+                          <img src="assets/icons/edit.png" alt="edit" (click)="editActivity(i,j)">
+                          <img src="assets/icons/delete.png" alt="delete" (click)="deleteActivity(i,j)">
+                        </div>
+                        <div class="options_btn" *ngIf="activity.editable">
+                          <button type="button" class="btn btn-primary" (click)="updateActivity(i,j)">Modificar</button>
+                          <button type="button" class="blue_close btn-close"
+                            (click)="cancelUpdateActivity(i,j)"></button>
+                        </div>
+                      </div>
+                      <div class="activity_body" *ngIf="!activity.editable">
+                        <div class="file_item finish" *ngFor="let file of activity.files">
+                          <img src="assets/icons/file.png" alt="">
+                          <span>{{file.name}}</span>
+                        </div>
+                        <div class="file_item finish" *ngFor="let link of activity.enlaces">
+                          <img src="assets/icons/link.png" alt="">
+                          <span>{{link}}</span>
+                        </div>
+                      </div>
+                      <div class="new_activity_body edition" *ngIf="activity.editable">
+                        <div class="activity_files_list" *ngIf="activity.files.length>0">
+                          <div class="file_item" *ngFor="let file of activity.files; let z = index">
+                            <div class="file_group">
+                              <img src="assets/icons/file.png" alt="">
+                              <span>{{file.name}}</span>
+                            </div>
+                            <button type="button" class="btn-close blue_close unbordered"
+                              (click)="deleteFileEdition(i,j,z)"></button>
+                          </div>
+                        </div>
+                        <div class="btn_upload_container" *ngIf="!activity.finishActivity">
+                          <button type="button" class="upload_btn" (click)="fileInputEdition.click()">
+                            <div class="btn_upload_content">
+                              <img src="assets/icons/upload.png" alt="">
+                              <span>Subir archivo</span>
+                              <input #fileInputEdition type="file" style="display:none;"
+                                (change)="addFileEdition($event,i,j)" />
+                            </div>
+                          </button>
+                        </div>
+                        <div class="activity_links_list" *ngIf="activity.enlaces.length>0">
+                          <div class="file_item" *ngFor="let link of activity.enlaces; let z = index">
+                            <div class="link_group">
+                              <img src="assets/icons/link.png" alt="">
+                              <span>{{link}}</span>
+                            </div>
+                            <button type="button" class="btn-close blue_close unbordered"
+                              (click)="deleteLinkEdition(i,j,z)"></button>
+                          </div>
+                        </div>
+                        <div class="link_container" *ngIf="!activity.finishActivity">
+                          <input type="text" class="long_input semi_border" style="width: 87%;"
+                            [(ngModel)]="newLinkEdition" placeholder="Pegar link del enlace">
+                          <button type="button" class="btn btn-primary semi_border"
+                            (click)="addLinkEdition(i,j)">Agregar</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="new_activity" *ngIf="newActivity.addingActivity && selectStrategyIndex == i">
+                    <div class="new_activity_header">
+                      <input type="text" class="long_input enabled" [(ngModel)]=" newActivity.name"
+                        placeholder="Nombre de la actividad">
+                      <div class="options_btn">
+                        <button type="button" class="btn btn-primary" (click)="createActivity(i)">Crear</button>
+                        <button type="button" class="blue_close btn-close" (click)="cancelActivity()"></button>
+                      </div>
+                    </div>
+                    <div class="new_activity_body">
+                      <div class="activity_files_list" *ngIf="newActivity.files.length>0">
+                        <div class="file_item" *ngFor="let file of newActivity.files; let j = index">
+                          <div class="file_group">
+                            <img src="assets/icons/file.png" alt="">
+                            <span>{{file.name}}</span>
+                          </div>
+                          <button type="button" class="btn-close blue_close unbordered"
+                            (click)="deleteFile(j)"></button>
+                        </div>
+                      </div>
+                      <div class="btn_upload_container" *ngIf="!newActivity.finishActivity">
+                        <button type="button" class="upload_btn" (click)="fileInput.click()">
+                          <div class="btn_upload_content">
+                            <img src="assets/icons/upload.png" alt="">
+                            <span>Subir archivo</span>
+                            <input #fileInput type="file" style="display:none;" (change)="addFileActivity($event)" />
+                          </div>
+                        </button>
+                      </div>
+                      <div class="activity_links_list" *ngIf="newActivity.enlaces.length>0">
+                        <div class="file_item" *ngFor="let link of newActivity.enlaces; let j = index">
+                          <div class="link_group">
+                            <img src="assets/icons/link.png" alt="">
+                            <span>{{link}}</span>
+                          </div>
+                          <button type="button" class="btn-close blue_close unbordered"
+                            (click)="deleteLink(j)"></button>
+                        </div>
+                      </div>
+                      <div class="link_container" *ngIf="!newActivity.finishActivity">
+                        <input type="text" class="long_input semi_border" style="width: 87%;" [(ngModel)]="newLink"
+                          placeholder="Pegar link del enlace">
+                        <button type="button" class="btn btn-primary semi_border" (click)=" addLink()">Agregar</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="strategy_end" *ngIf="!newActivity.addingActivity && !editingActivity">
+                    <button type="button" class="btn btn-primary" (click)=" addActivity(i)">+Agregar actividad</button>
+                  </div>
+                </div>
+              </div>
+              <div class="new_strategy" *ngIf="newStrategy.addingStrategy">
+                <div class="strategy_title">
+                  <input type="text" class="long_input" [(ngModel)]="newStrategy.description"
+                    placeholder="Nombre de la estrategia">
+                  <button type="button" class="btn btn-primary" (click)=" createStrategy()">Crear</button>
+                  <button type="button" class="blue_close btn-close" (click)="cancelStrategy()"></button>
+                </div>
+              </div>
+              <div class="strategy_end">
+                <button type="button" class="btn btn-outline-primary long_border_btn" (click)="addStrategy()">
+                  + Añadir estrategia</button>
+              </div>
+            </div>
+          </ng-template>
+        </li>
+        <li [ngbNavItem]="5">
+          <a ngbNavLink>Actividades</a>
+          <ng-template ngbNavContent>
+          </ng-template>
+        </li>
+      </ul>
+      <div [ngbNavOutlet]="nav" class="mt-2"></div>
+    </div>
+    <div class="nav_content">
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" (click)="saveAll()">Guardar</button>
+      </div>
+    </div>
+  </div>
+</app-modal>
